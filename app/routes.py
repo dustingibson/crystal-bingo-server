@@ -10,7 +10,6 @@ def index():
     # db.session.add(sq)
     # db.session.commit()
     sq = db.session.query(Square).filter_by(id='XYZ').first()
-    print(sq)    
     return "blah"
 
 def GrabSquares():
@@ -55,6 +54,16 @@ def JoinUser(roomid,name):
             return [True, curChkUser]
     return [False, "User does not exist"]
 
+@app.route('/GetNews', methods = ['GET'])
+def GetNews():
+    if request.method == 'GET':
+        try:
+            news = open("news.html","r").read()
+            return news
+        except Exception as e:
+            print(e)
+            return ""
+
 @app.route('/GetRoomInfo', methods = ['GET'])
 def GetRoomInfo():
     if request.method == 'GET':
@@ -63,7 +72,6 @@ def GetRoomInfo():
             users = db.session.query(User).filter_by(roomid=roomID).all()
             room = db.session.query(Room).filter_by(id=roomID).first()
             card = db.session.query(Card).filter_by(id=room.cardid).first()
-            print(room)
 
             s11 = db.session.query(Square).filter_by(id=card.s11).first()
             s12 = db.session.query(Square).filter_by(id=card.s12).first()
@@ -104,7 +112,6 @@ def GetRoomInfo():
             for i in range(0, len(users)):
                 curUser = users[i]
                 userDict = { "id" : curUser.id,  "result": curUser.result, "color": curUser.color, "status": curUser.color, "name" : curUser.name }
-                print(userDict)
                 results["userinfo"].append(userDict)
 
 
@@ -135,7 +142,6 @@ def UpdateResults():
             return "error"
 
 def CreateResponse(respDict):
-    print(respDict)
     return Response(json.dumps(respDict))
 
 @app.route('/CreateRoom', methods = ['POST'])
@@ -151,7 +157,6 @@ def CreateRoom():
             if(not user[0]):
                 return CreateResponse({"success": False, "message": user[1]})
             room = Room(id=roomID, cardid=cardID.id, name=roomName)
-            print(room.cardid)
             db.session.add(room)
             db.session.commit()
             return CreateResponse({"success": True, "message": "", "user": user[1].id, "room": roomID})
@@ -200,7 +205,6 @@ def getObjectDict(roomInfo, userInfo):
     for i in range(0, len(userInfo)):
         curUser = userInfo[i]
         userDict = { "id" : curUser.id,  "result": curUser.result, "color": curUser.color, "status": curUser.color, "name" : curUser.name }
-        print(userDict)
         results["userinfo"].append(userDict)
     return results
 
@@ -211,7 +215,6 @@ def GetInfo():
         try:
             roomID = request.args['roomid']
             userID = request.args["userid"]
-            print("QUERYING")
             #curSquare = db.session.query(Square).first().id
             room = db.session.query(Room).filter_by(id=roomID).first()
             users = db.session.query(User).filter_by(roomid=roomID).all()
